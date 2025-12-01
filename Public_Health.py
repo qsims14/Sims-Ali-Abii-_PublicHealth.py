@@ -4,19 +4,19 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
-# ------------------ Health Analyzer Class (Renamed and Improved) ------------------
+#Health Analyzer Class
 
 class HealthAnalyzer:
     """
     Analyzes hospital patient data, performing cleaning, summarizing outcomes,
-    aggregating metrics, and generating required visualizations.
+    aggregating metrics, and generating visualizations.
     """
     def __init__(self, df):
         # 1. Normalize column names (Ensuring it can handle headers like D.O.A or AGE)
         df.columns = [col.strip().upper().replace(' ', '_').replace('.', '_') for col in df.columns]
         self.df = df.copy()
 
-    # ------------------ Data Cleaning (Robust to common errors) ------------------
+    #Data Cleaning
     def clean_data(self):
         """
         Cleans patient records by standardizing dates, handling non-numeric missing
@@ -60,7 +60,7 @@ class HealthAnalyzer:
         # 3. Drop rows with critical missing dates (Cannot calculate duration or timeline otherwise)
         self.df.dropna(subset=date_columns, inplace=True)
 
-    # ------------------ Summaries (Renamed and simplified aggregation logic for clarity) ------------------
+    # Summaries
     def outcome_summary(self):
         """Summarizes total counts for each patient outcome (DISCHARGE, DAMA, EXPIRY/DEATH)."""
         if 'OUTCOME' in self.df.columns:
@@ -76,7 +76,7 @@ class HealthAnalyzer:
             return (deaths / total) * 100
         return None
 
-    # ------------------ Aggregations ------------------
+    # Aggregations 
     def aggregate_by_gender(self):
         """Aggregates outcomes counts by gender."""
         if 'GENDER' in self.df.columns and 'OUTCOME' in self.df.columns:
@@ -98,9 +98,9 @@ class HealthAnalyzer:
             return self.df.groupby('DEPARTMENT')['SATISFACTION'].mean().sort_values(ascending=False)
         return "Required columns (DEPARTMENT, SATISFACTION) missing or data structure inadequate."
 
-    # ------------------ Visualizations ------------------
+    # Visualizations
     def plot_outcome_by_age(self):
-        """Creates a Histogram of patient outcomes stratified by age (Requirement 1)."""
+        """Creates a Histogram of patient outcomes stratified by age."""
         if 'AGE' in self.df.columns and 'OUTCOME' in self.df.columns:
             fig, ax = plt.subplots(figsize=(10, 6))
             sns.histplot(data=self.df, x='AGE', hue='OUTCOME', bins=20, multiple='stack', kde=False, ax=ax)
@@ -112,7 +112,7 @@ class HealthAnalyzer:
             st.warning("Cannot generate Histogram: Missing 'AGE' or 'OUTCOME' column.")
 
     def plot_admissions_over_time(self):
-        """Creates a Line Chart of admissions count over time (Requirement 2)."""
+        """Creates a Line Chart of admissions count over time."""
         if 'D_O_A' in self.df.columns and not self.df.empty:
             # Convert to month period for grouping and sorting
             admissions_over_time = self.df.set_index('D_O_A').resample('M').size()
@@ -128,7 +128,7 @@ class HealthAnalyzer:
             st.warning("Cannot generate Line Chart: Missing or invalid 'D_O_A' column.")
 
     def plot_avg_satisfaction_by_department(self):
-        """Creates a Bar Chart of average service satisfaction by department (Requirement 3)."""
+        """Creates a Bar Chart of average service satisfaction by department."""
         if 'DEPARTMENT' in self.df.columns and 'SATISFACTION' in self.df.columns:
             avg_satisfaction = self.df.groupby('DEPARTMENT')['SATISFACTION'].mean().sort_values(ascending=False)
             
@@ -149,7 +149,7 @@ class HealthAnalyzer:
             st.warning("Cannot generate Bar Chart: Missing 'DEPARTMENT' or 'SATISFACTION' column.")
 
 
-# ------------------ Streamlit Dashboard (Client Interface) ------------------
+# Streamlit Dashboard 
 
 st.title("Health Data Analysis Dashboard")
 
@@ -165,9 +165,7 @@ uploaded_file = st.file_uploader("Upload CSV or Excel File", type=["xlsx", "csv"
 if uploaded_file:
     df_raw = load_data(uploaded_file)
     
-    # --- Data Mocking for Demonstration (Crucial to make user's required charts work) ---
-    # Since raw hospital data often lacks operational/satisfaction metrics, 
-    # we simulate them for the required charts if the columns are missing.
+  
     df_processed = df_raw.copy()
     
     # Normalize column names for checks (do not mutate original raw df yet)
@@ -193,7 +191,7 @@ if uploaded_file:
     st.subheader("Cleaned Data Snapshot")
     st.write(analyzer.df.head())
     
-    # ------------------ Display Summaries ------------------
+    # Display Summaries 
     st.markdown("---")
     st.subheader("1. Outcome Summary (Method: `outcome_summary`)")
     st.write(analyzer.outcome_summary())
@@ -205,7 +203,7 @@ if uploaded_file:
     else:
         st.write("N/A: Outcome column not found.")
 
-    # ------------------ Display Visualizations (Required Charts) ------------------
+    # Display Visualizations (Required Charts)
     st.markdown("---")
     st.header("Required Data Visualizations")
 
@@ -218,7 +216,7 @@ if uploaded_file:
     st.subheader("5. Average Service Satisfaction by Department (Bar Chart)")
     analyzer.plot_avg_satisfaction_by_department()
 
-    # ------------------ Display Aggregations ------------------
+    # Display Aggregations
     st.markdown("---")
     st.header("Data Aggregations")
 
@@ -233,6 +231,7 @@ if uploaded_file:
 
 else:
     st.info("Upload a CSV or Excel file to populate the dashboard and run the analysis.")
+
 
 
 
