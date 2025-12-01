@@ -165,7 +165,9 @@ uploaded_file = st.file_uploader("Upload CSV or Excel File", type=["xlsx", "csv"
 if uploaded_file:
     df_raw = load_data(uploaded_file)
     
-  
+    #Some information had to be simulated so the charts would generate.  
+    #Since the orginal excel datasheet is missing, a Department and Satisfaction column
+    # Some data had to be simulated to generate the charts
     df_processed = df_raw.copy()
     
     # Normalize column names for checks (do not mutate original raw df yet)
@@ -231,6 +233,7 @@ if uploaded_file:
 
 else:
     st.info("Upload a CSV or Excel file to populate the dashboard and run the analysis.")
+
 
 
 
